@@ -60,7 +60,7 @@
               "keys": {
                 "topic": {
                   "type": "repr", 
-                  "repr": "u'/cmd_vel'"
+                  "repr": "u'/pepper_robot/cmd_vel'"
                 }, 
                 "vx_min": {
                   "type": "repr", 
@@ -361,11 +361,11 @@
               "keys": {
                 "jtc_name": {
                   "type": "repr", 
-                  "repr": "u'/pepper_dcm/LeftArm_controller'"
+                  "repr": "[]"
                 }, 
                 "cm_ns": {
                   "type": "repr", 
-                  "repr": "u'/controller_manager'"
+                  "repr": "[]"
                 }
               }, 
               "groups": {}
@@ -562,8 +562,8 @@
       "keys": {
         "geometry": {
           "type": "repr(QByteArray.hex)", 
-          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb000100000000011300000070000002e7000003d00000011d00000096000002dd000003c6000000000000')", 
-          "pretty-print": "       p               "
+          "repr(QByteArray.hex)": "QtCore.QByteArray('01d9d0cb000100000000010900000066000002dd000003c6000001130000008c000002d3000003bc000000000000')", 
+          "pretty-print": "       f               "
         }, 
         "state": {
           "type": "repr(QByteArray.hex)", 
