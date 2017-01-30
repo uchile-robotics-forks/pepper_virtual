@@ -24,6 +24,12 @@ include_directories(${Boost_INCLUDE_DIRS})
 add_library(pepper_gazebo_ros_force_omni_base src/gazebo_ros_force_omni_base.cpp)
 target_link_libraries(pepper_gazebo_ros_force_omni_base ${Boost_LIBRARIES} ${GAZEBO_LIBRARIES} ${catkin_LIBRARIES})
 
+add_library(pepper_gazebo_mimic_joint_plugin src/mimic_joint_plugin.cpp)
+target_link_libraries(pepper_gazebo_mimic_joint_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
+add_library(pepper_gazebo_disable_link_plugin src/disable_link_plugin.cpp)
+target_link_libraries(pepper_gazebo_disable_link_plugin ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
+
 install(DIRECTORY launch worlds
    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

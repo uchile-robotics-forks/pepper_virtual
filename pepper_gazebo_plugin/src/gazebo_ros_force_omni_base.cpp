@@ -229,6 +229,7 @@ namespace gazebo
     // Apply commands
     link_->AddTorque(math::Vector3(0.0, 0.0, torque_cmd));
     link_->AddRelativeForce(math::Vector3(force_x_cmd, force_y_cmd, 0.0));
+    //std::cout << force_x_cmd << " , " << link_->GetRelativeForce().x << std::endl;
     //parent_->PlaceOnNearestEntityBelow();
     //parent_->SetLinearVel(math::Vector3(
     //      x_ * cosf(yaw) - y_ * sinf(yaw),
@@ -324,8 +325,6 @@ namespace gazebo
     }else{
       odom_.twist.covariance[35] = 100.0;
     }
-
-
 
     odometry_pub_.publish(odom_);
   }
