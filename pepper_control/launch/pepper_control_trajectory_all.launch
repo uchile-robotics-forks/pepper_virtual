@@ -5,16 +5,16 @@
   <rosparam file="$(find pepper_control)/config/pepper_trajectory_control.yaml" command="load"/>
 
   <!-- load the controllers -->
-  <node launch-prefix="xterm -T 'Gazebo controllers' -e" name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" args="
-      /pepper_dcm/RightArm_controller
-      /pepper_dcm/LeftArm_controller
-      /pepper_dcm/RightHand_controller
-      /pepper_dcm/LeftHand_controller
-      /pepper_dcm/Head_controller
-      /pepper_dcm/Pelvis_controller
-      /pepper_dcm/WheelFL_controller
-      /pepper_dcm/WheelFR_controller
-      /pepper_dcm/WheelB_controller
-      /pepper_dcm/joint_state_controller "/>
+  <node launch-prefix="xterm -T 'Gazebo controllers' -e" name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/pepper_dcm"
+    args="
+    RightArm_controller
+    LeftArm_controller
+    RightHand_controller
+    LeftHand_controller
+    Head_controller
+    Pelvis_controller
+    WheelFL_controller
+    WheelFR_controller
+    WheelB_controller
+    joint_state_controller"/>
 </launch>
