@@ -141,8 +141,8 @@ namespace gazebo
       this->publish_odometry_tf_ = sdf->GetElement("publishOdometryTf")->Get<bool>();
     }
  
-    last_odom_publish_time_ = parent_->GetWorld()->GetSimTime();
-    last_odom_pose_ = parent_->GetWorldPose();
+    last_odom_publish_time_ = parent_->GetWorld()->SimTime();
+    last_odom_pose_ = parent_->WorldPose();
     x_ = 0;
     y_ = 0;
     rot_ = 0;
@@ -211,24 +211,24 @@ namespace gazebo
     boost::mutex::scoped_lock scoped_lock(lock);
 
     // Get current speed
-    math::Vector3 angular_vel = parent_->GetWorldAngularVel();
-    math::Vector3 linear_vel = parent_->GetRelativeLinearVel();
+   	auto angular_vel = parent_->WorldAngularVel();
+    auto linear_vel = parent_->RelativeLinearVel();
 
     ros::Time current_time = ros::Time::now();
     ros::Duration dt = current_time - last_ctrl_loop_;
     last_ctrl_loop_ = current_time;
 
-    double yaw_error = rot_ - angular_vel.z;
-    double x_error = x_ - linear_vel.x;
-    double y_error = y_ - linear_vel.y;
+    double yaw_error = rot_ - angular_vel.Z();
+    double x_error = x_ - linear_vel.X();
+    double y_error = y_ - linear_vel.Y();
 
     // Apply limits
     double torque_cmd = std::max( -max_torque_, std::min( torque_yaw_pid_.computeCommand(yaw_error, dt), max_torque_) );
     double force_x_cmd = std::max( -max_force_, std::min( force_x_pid_.computeCommand(x_error, dt), max_force_) );
     double force_y_cmd = std::max( -max_force_, std::min( force_y_pid_.computeCommand(y_error, dt), max_force_) );
     // Apply commands
-    link_->AddTorque(math::Vector3(0.0, 0.0, torque_cmd));
-    link_->AddRelativeForce(math::Vector3(force_x_cmd, force_y_cmd, 0.0));
+    link_->AddTorque(ignition::math::Vector3d(0.0, 0.0, torque_cmd));
+    link_->AddRelativeForce(ignition::math::Vector3d(force_x_cmd, force_y_cmd, 0.0));
     //std::cout << force_x_cmd << " , " << link_->GetRelativeForce().x << std::endl;
     //parent_->PlaceOnNearestEntityBelow();
     //parent_->SetLinearVel(math::Vector3(
@@ -238,7 +238,7 @@ namespace gazebo
     //parent_->SetAngularVel(math::Vector3(0, 0, rot_));
 
     if (odometry_rate_ > 0.0) {
-      common::Time current_time = parent_->GetWorld()->GetSimTime();
+      common::Time current_time = parent_->GetWorld()->SimTime();
       double seconds_since_last_update = 
         (current_time - last_odom_publish_time_).Double();
       if (seconds_since_last_update > (1.0 / odometry_rate_)) {
@@ -283,14 +283,14 @@ namespace gazebo
     std::string base_footprint_frame = 
       tf::resolve(tf_prefix_, robot_base_frame_);
 
-    math::Vector3 angular_vel = parent_->GetRelativeAngularVel();
-    math::Vector3 linear_vel = parent_->GetRelativeLinearVel();
+    auto angular_vel = parent_->RelativeAngularVel();
+    auto linear_vel = parent_->RelativeLinearVel();
 
-    odom_transform_= odom_transform_ * this->getTransformForMotion(linear_vel.x, angular_vel.z, step_time);
+    odom_transform_= odom_transform_ * this->getTransformForMotion(linear_vel.X(), angular_vel.Z(), step_time);
 
     tf::poseTFToMsg(odom_transform_, odom_.pose.pose);
-    odom_.twist.twist.angular.z = angular_vel.z;
-    odom_.twist.twist.linear.x  = linear_vel.x;
+    odom_.twist.twist.angular.z = angular_vel.Z();
+    odom_.twist.twist.linear.x  = linear_vel.X();
 
     odom_.header.stamp = current_time;
     odom_.header.frame_id = odom_frame;
@@ -308,7 +308,7 @@ namespace gazebo
     odom_.pose.covariance[21] = 1000000000000.0;
     odom_.pose.covariance[28] = 1000000000000.0;
     
-    if (std::abs(angular_vel.z) < 0.0001) {
+    if (std::abs(angular_vel.Z()) < 0.0001) {
       odom_.pose.covariance[35] = 0.01;
     }else{
       odom_.pose.covariance[35] = 100.0;
@@ -320,7 +320,7 @@ namespace gazebo
     odom_.twist.covariance[21] = 1000000000000.0;
     odom_.twist.covariance[28] = 1000000000000.0;
 
-    if (std::abs(angular_vel.z) < 0.0001) {
+    if (std::abs(angular_vel.Z()) < 0.0001) {
       odom_.twist.covariance[35] = 0.01;
     }else{
       odom_.twist.covariance[35] = 100.0;

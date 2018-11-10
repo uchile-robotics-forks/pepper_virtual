@@ -11,6 +11,7 @@
 
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
+#include <ignition/math.hh>
 #include <sdf/sdf.hh>
 
 #include <geometry_msgs/Twist.h>
@@ -82,7 +83,7 @@ namespace gazebo {
       double rot_;
       bool alive_;
       common::Time last_odom_publish_time_;
-      math::Pose last_odom_pose_;
+      ignition::math::Pose3d last_odom_pose_;
 
       double max_torque_;
       double max_force_;
