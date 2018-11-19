@@ -7,14 +7,14 @@
   <!-- load the controllers -->
   <node name="pepper_control" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" args="
-      /pepper_dcm/HeadYaw_position_controller /pepper_dcm/HeadPitch_position_controller
-      /pepper_dcm/LShoulderPitch_position_controller /pepper_dcm/LShoulderRoll_position_controller
-      /pepper_dcm/LElbowYaw_position_controller /pepper_dcm/LElbowRoll_position_controller /pepper_dcm/LWristYaw_position_controller
-      /pepper_dcm/RShoulderPitch_position_controller /pepper_dcm/RShoulderRoll_position_controller 
-      /pepper_dcm/RElbowYaw_position_controller /pepper_dcm/RElbowRoll_position_controller /pepper_dcm/RWristYaw_position_controller 
-      /pepper_dcm/LHand_position_controller /pepper_dcm/RHand_position_controller      
-      /pepper_dcm/HipRoll_position_controller /pepper_dcm/HipPitch_position_controller /pepper_dcm/KneePitch_position_controller 
-      /pepper_dcm/joint_state_controller"/>
+      HeadYaw_position_controller HeadPitch_position_controller
+      LShoulderPitch_position_controller LShoulderRoll_position_controller
+      LElbowYaw_position_controller LElbowRoll_position_controller LWristYaw_position_controller
+      RShoulderPitch_position_controller RShoulderRoll_position_controller 
+      RElbowYaw_position_controller RElbowRoll_position_controller RWristYaw_position_controller 
+      LHand_position_controller RHand_position_controller      
+      HipRoll_position_controller HipPitch_position_controller KneePitch_position_controller 
+      joint_state_controller"/>
 </launch>
 
-<!-- /pepper_dcm/WheelB_controller /pepper_dcm/WheelFL_controller /pepper_dcm/WheelFR_controller -->
+<!-- /WheelB_controller /WheelFL_controller /WheelFR_controller -->
