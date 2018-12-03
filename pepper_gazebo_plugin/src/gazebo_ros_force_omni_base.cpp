@@ -69,6 +69,11 @@ namespace gazebo
       odometry_frame_ = sdf->GetElement("odometryFrame")->Get<std::string>();
     }
     
+    /////////////// HARDCODEADO
+    robot_base_link_frame_ = "base_link";
+    robot_base_footprint_frame_ = "base_footprint";
+    ////////////////////////////////
+
     torque_yaw_velocity_p_gain_ = 1000.0;
     torque_yaw_velocity_i_gain_ = 300.0;
     
@@ -134,12 +139,12 @@ namespace gazebo
     } 
 
     this->publish_odometry_tf_ = true;
-    if (!sdf->HasElement("publishOdometryTf")) {
-      ROS_WARN("PlanarMovePlugin Plugin (ns = %s) missing <publishOdometryTf>, defaults to %s",
-               this->robot_namespace_.c_str(), this->publish_odometry_tf_ ? "true" : "false");
-    } else {
-      this->publish_odometry_tf_ = sdf->GetElement("publishOdometryTf")->Get<bool>();
-    }
+    //if (!sdf->HasElement("publishOdometryTf")) {
+    //  ROS_WARN("PlanarMovePlugin Plugin (ns = %s) missing <publishOdometryTf>, defaults to %s",
+    //           this->robot_namespace_.c_str(), this->publish_odometry_tf_ ? "true" : "false");
+    //} else {
+    //  this->publish_odometry_tf_ = sdf->GetElement("publishOdometryTf")->Get<bool>();
+    //}
  
     last_odom_publish_time_ = parent_->GetWorld()->GetSimTime();
     last_odom_pose_ = parent_->GetWorldPose();
@@ -182,9 +187,10 @@ namespace gazebo
 
     tf_prefix_ = tf::getPrefixParam(*rosnode_);
 
-    if (publish_odometry_tf_)
+    if (publish_odometry_tf_){
       transform_broadcaster_.reset(new tf::TransformBroadcaster());
-
+      transform_listener_.reset(new tf::TransformListener());
+  }
     // subscribe to the odometry topic
     ros::SubscribeOptions so =
       ros::SubscribeOptions::create<geometry_msgs::Twist>(command_topic_, 1,
@@ -280,13 +286,34 @@ namespace gazebo
 
     ros::Time current_time = ros::Time::now();
     std::string odom_frame = tf::resolve(tf_prefix_, odometry_frame_);
-    std::string base_footprint_frame = 
-      tf::resolve(tf_prefix_, robot_base_frame_);
+    std::string base_footprint_frame = tf::resolve(tf_prefix_, robot_base_footprint_frame_);
+    std::string base_link_frame = tf::resolve(tf_prefix_, robot_base_link_frame_);
+    
+    tf::StampedTransform base_footprint_to_base_link;
+    tf::Transform odom_to_base_link;
+    tf::StampedTransform odom_to_base_footprint;
 
     math::Vector3 angular_vel = parent_->GetRelativeAngularVel();
     math::Vector3 linear_vel = parent_->GetRelativeLinearVel();
 
     odom_transform_= odom_transform_ * this->getTransformForMotion(linear_vel.x, angular_vel.z, step_time);
+    odom_to_base_footprint = tf::StampedTransform(odom_transform_,current_time,odom_frame,base_footprint_frame);
+
+    try
+    { 
+        if(transform_listener_.get()){
+          transform_listener_->lookupTransform(base_footprint_frame,base_link_frame,ros::Time(0),base_footprint_to_base_link);
+          ROS_DEBUG("OK Transform to %s from %s \n", base_footprint_frame.c_str(), base_link_frame.c_str());
+        }
+   
+    }
+    catch(tf::TransformException &e)
+    {
+        ROS_ERROR("Failed to transform to %s from %s: %s\n", base_footprint_frame.c_str(), base_link_frame.c_str(), e.what());
+        return;
+    }
+
+
 
     tf::poseTFToMsg(odom_transform_, odom_.pose.pose);
     odom_.twist.twist.angular.z = angular_vel.z;
@@ -294,12 +321,16 @@ namespace gazebo
 
     odom_.header.stamp = current_time;
     odom_.header.frame_id = odom_frame;
-    odom_.child_frame_id = base_footprint_frame;
+    //odom_.child_frame_id = base_footprint_frame;
+    odom_.child_frame_id = base_link_frame;
+
+    odom_to_base_link = odom_to_base_footprint * base_footprint_to_base_link;
 
     if (transform_broadcaster_.get()){
       transform_broadcaster_->sendTransform(
-          tf::StampedTransform(odom_transform_, current_time, odom_frame,
-              base_footprint_frame));
+          tf::StampedTransform(odom_to_base_link, current_time, odom_frame,
+              base_link_frame));
+      ROS_DEBUG("Sending Transform from %s to %s \n",odom_frame.c_str(),base_link_frame.c_str());
     }
     
     odom_.pose.covariance[0] = 0.001;

@@ -54,6 +54,7 @@ namespace gazebo {
       ros::Publisher odometry_pub_;
       ros::Subscriber vel_sub_;
       boost::shared_ptr<tf::TransformBroadcaster> transform_broadcaster_;
+      boost::shared_ptr<tf::TransformListener> transform_listener_;
       nav_msgs::Odometry odom_;
       std::string tf_prefix_;
 
@@ -66,6 +67,8 @@ namespace gazebo {
       std::string odometry_topic_;
       std::string odometry_frame_;
       std::string robot_base_frame_;
+      std::string robot_base_link_frame_;
+      std::string robot_base_footprint_frame_;
       double odometry_rate_;
       bool publish_odometry_tf_;
 
