@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="launch_control_trajectory_all" default="true"/>
+  <!-- Load the URDF Model -->
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find pepper_gazebo_plugin)/worlds/out.world"/>
+    <arg name="paused" value="true"/>
+  </include>
+
+
+
+</launch>
