@@ -7,8 +7,6 @@
   <!-- load the controllers -->
   <node name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="true"
     output="screen" args="
-      /pepper/RightArm_controller
-      /pepper/LeftArm_controller
       /pepper/Head_controller
       /pepper/Pelvis_controller
       /pepper/joint_state_controller "/>
