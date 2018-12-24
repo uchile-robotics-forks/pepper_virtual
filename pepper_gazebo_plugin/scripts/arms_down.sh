@@ -9,7 +9,7 @@ do
 done
 
 echo "Lowering arms."
-sleep 1.0
+sleep 5.0
 
 rostopic pub --once /pepper/LeftArm_controller/command trajectory_msgs/JointTrajectory "header:
   seq: 0
