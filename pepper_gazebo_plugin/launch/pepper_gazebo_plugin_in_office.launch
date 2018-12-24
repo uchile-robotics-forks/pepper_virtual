@@ -19,6 +19,8 @@
 <!--
   <include file="$(find pepper_control)/launch/pepper_control_position.launch"/>
 -->
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />  
   <!-- Spawn a robot into Gazebo -->
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
     args="-param robot_description -urdf -x -0.5 -y 1 -z 0.05 -model pepper_MP" />
