@@ -68,6 +68,10 @@ namespace gazebo
     {
       odometry_frame_ = sdf->GetElement("odometryFrame")->Get<std::string>();
     }
+
+    //TODO: obtain names from urdf
+    robot_base_link_frame_ = "base_link";
+    robot_base_footprint_frame_ = "base_footprint";
     
     torque_yaw_velocity_p_gain_ = 1000.0;
     torque_yaw_velocity_i_gain_ = 300.0;
@@ -182,17 +186,25 @@ namespace gazebo
 
     tf_prefix_ = tf::getPrefixParam(*rosnode_);
 
-    if (publish_odometry_tf_)
+    if (publish_odometry_tf_){
       transform_broadcaster_.reset(new tf::TransformBroadcaster());
+      transform_listener_.reset(new tf::TransformListener());
+    }
 
     // subscribe to the odometry topic
     ros::SubscribeOptions so =
       ros::SubscribeOptions::create<geometry_msgs::Twist>(command_topic_, 1,
           boost::bind(&GazeboRosForceOmniBase::cmdVelCallback, this, _1),
           ros::VoidPtr(), &queue_);
+    
+    ros::SubscribeOptions so1 =
+      ros::SubscribeOptions::create<std_msgs::Empty>("reset_odom", 1,
+          boost::bind(&GazeboRosForceOmniBase::resetOdometry, this, _1),
+          ros::VoidPtr(), &queue_);
 
     vel_sub_ = rosnode_->subscribe(so);
     odometry_pub_ = rosnode_->advertise<nav_msgs::Odometry>(odometry_topic_, 1);
+    reset_odometry_sub_ = rosnode_->subscribe(so1);
 
     // start custom queue for diff drive
     callback_queue_thread_ = 
@@ -280,26 +292,44 @@ namespace gazebo
 
     ros::Time current_time = ros::Time::now();
     std::string odom_frame = tf::resolve(tf_prefix_, odometry_frame_);
-    std::string base_footprint_frame = 
-      tf::resolve(tf_prefix_, robot_base_frame_);
+    
+    std::string base_footprint_frame = tf::resolve(tf_prefix_, robot_base_footprint_frame_);
+    std::string base_link_frame = tf::resolve(tf_prefix_, robot_base_link_frame_);
+ 
+    tf::StampedTransform base_footprint_to_base_link;
+    tf::Transform odom_to_base_link;
+    tf::StampedTransform odom_to_base_footprint;
 
     auto angular_vel = parent_->RelativeAngularVel();
     auto linear_vel = parent_->RelativeLinearVel();
 
     odom_transform_= odom_transform_ * this->getTransformForMotion(linear_vel.X(), angular_vel.Z(), step_time);
+    odom_to_base_footprint = tf::StampedTransform(odom_transform_, current_time, odom_frame, base_footprint_frame);
+    try{ 
+      if(transform_listener_.get()){
+        transform_listener_->lookupTransform(base_footprint_frame, base_link_frame, ros::Time(0), base_footprint_to_base_link);
+        ROS_DEBUG("OK Transform to %s from %s \n", base_footprint_frame.c_str(), base_link_frame.c_str());
+      }
+    }
+    catch(tf::TransformException &e){
+      ROS_ERROR("Failed to transform to %s from %s: %s\n", base_footprint_frame.c_str(), base_link_frame.c_str(), e.what());
+      return;
+    }
 
     tf::poseTFToMsg(odom_transform_, odom_.pose.pose);
     odom_.twist.twist.angular.z = angular_vel.Z();
     odom_.twist.twist.linear.x  = linear_vel.X();
+    odom_.twist.twist.linear.y  = linear_vel.Y();
 
     odom_.header.stamp = current_time;
     odom_.header.frame_id = odom_frame;
-    odom_.child_frame_id = base_footprint_frame;
+    odom_.child_frame_id = base_link_frame;
+
+    odom_to_base_link = odom_to_base_footprint * base_footprint_to_base_link;
 
     if (transform_broadcaster_.get()){
-      transform_broadcaster_->sendTransform(
-          tf::StampedTransform(odom_transform_, current_time, odom_frame,
-              base_footprint_frame));
+      transform_broadcaster_->sendTransform(tf::StampedTransform(odom_to_base_link, current_time, odom_frame, base_link_frame));
+      ROS_DEBUG("Sending Transform from %s to %s \n", odom_frame.c_str(), base_link_frame.c_str());  
     }
     
     odom_.pose.covariance[0] = 0.001;
@@ -329,6 +359,14 @@ namespace gazebo
     odometry_pub_.publish(odom_);
   }
 
+  void GazeboRosForceOmniBase::resetOdometry(const std_msgs::EmptyConstPtr){
+    //ROS_INFO("Resetting Odometry");
+    odom_transform_.setIdentity();
+    odom_.pose.pose.position.x = 0.0;
+    odom_.pose.pose.position.y = 0.0;
+    odometry_pub_.publish(odom_);
+    return;
+  }
 
   tf::Transform GazeboRosForceOmniBase::getTransformForMotion(double linear_vel_x, double angular_vel, double timeSeconds) const
   {

@@ -13,6 +13,7 @@
 #include <gazebo/physics/physics.hh>
 #include <ignition/math.hh>
 #include <sdf/sdf.hh>
+#include <std_msgs/Empty.h>
 
 #include <geometry_msgs/Twist.h>
 #include <nav_msgs/Odometry.h>
@@ -39,6 +40,7 @@ namespace gazebo {
 
     private:
       void publishOdometry(double step_time);
+      void resetOdometry(const std_msgs::EmptyConstPtr);
 
       tf::Transform getTransformForMotion(double linear_vel_x, double angular_vel, double timeSeconds) const;
 
@@ -54,7 +56,9 @@ namespace gazebo {
       boost::shared_ptr<ros::NodeHandle> rosnode_;
       ros::Publisher odometry_pub_;
       ros::Subscriber vel_sub_;
+      ros::Subscriber reset_odometry_sub_;
       boost::shared_ptr<tf::TransformBroadcaster> transform_broadcaster_;
+      boost::shared_ptr<tf::TransformListener> transform_listener_;
       nav_msgs::Odometry odom_;
       std::string tf_prefix_;
 
@@ -67,6 +71,8 @@ namespace gazebo {
       std::string odometry_topic_;
       std::string odometry_frame_;
       std::string robot_base_frame_;
+      std::string robot_base_link_frame_;
+      std::string robot_base_footprint_frame_;
       double odometry_rate_;
       bool publish_odometry_tf_;
 
