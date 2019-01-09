@@ -15,7 +15,7 @@ class LaserPublisher(object):
     def __init__(self):
         if not rospy.core.is_initialized():
             rospy.init_node('laser_test', anonymous=True, disable_signals=True)
-            print("Initialised rospy node: laser_test")
+            rospy.loginfo("Initialised rospy node: laser_test")
 
         self.tl = TransformListener()
         self.lp = LaserProjection()
@@ -32,7 +32,7 @@ class LaserPublisher(object):
                                    10)
         self.ts.registerCallback(self.scan_cb)
 
-        print("Finished intialising")
+        rospy.loginfo("Finished intialising")
 
     def scan_cb(self, left, front, right):
         translated_points = []
@@ -41,7 +41,7 @@ class LaserPublisher(object):
             pc_front = self.lp.projectLaser(front)
             pc_right = self.lp.projectLaser(right)
         except Exception as e:
-            print("Failed to transform laser scan because: " + str(e))
+            rospy.logerr("Failed to transform laser scan because: " + str(e))
 
         # right point cloud translation
         for p in read_points(pc_right, field_names=('x', 'y', 'z'), skip_nans=True):
