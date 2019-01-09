@@ -96,31 +96,39 @@ class PCLChecker(object):
             allpc_dist.append(self.get_dist(p[0], p[1]))
             allpc_angles.append(atan2(p[1], p[0]))
 
-        print "==============================================================="
-        print olright.ranges
-        print olright_angles
-        print "==============================================================="
-        # print olfront.ranges
-        # print olfront_angles
-        # print "==============================================================="
-        # print olleft.ranges
-        # print olleft_angles
-        # print "==============================================================="
-        print opcright_dist
-        print opcright_angles
-        print "==============================================================="
-        # print opc_dist
-        # print opc_angles
-        # print "==============================================================="
-        # print opcleft_dist
-        # print opcleft_angles
-        # print "==============================================================="
-        print allpc_dist
-        print allpc_angles
-        print "==============================================================="
-        print alllaser_dist
-        print alllaser_angles
-        print "==============================================================="
+        print("===============================================================")
+        print("original right laser")
+        print(olright.ranges)
+        print(olright_angles)
+        print("===============================================================")
+        print("original front laser")
+        print(olfront.ranges)
+        print(olfront_angles)
+        print("===============================================================")
+        print("original left laser")
+        print(olleft.ranges)
+        print(olleft_angles)
+        print("===============================================================")
+        print("all combined laser")
+        print(alllaser_dist)
+        print(alllaser_angles)
+        print("==============================================================")
+        print("original right point cloud")
+        print(opcright_dist)
+        print(opcright_angles)
+        print("===============================================================")
+        print("original front point cloud")
+        print(opc_dist)
+        print(opc_angles)
+        print("===============================================================")
+        print("original left point cloud")
+        print(opcleft_dist)
+        print(opcleft_angles)
+        print("===============================================================")
+        print("all combined point cloud")
+        print(allpc_dist)
+        print(allpc_angles)
+        print("===============================================================")
 
 
 if __name__ == "__main__":
