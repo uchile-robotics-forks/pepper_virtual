@@ -80,7 +80,7 @@ class LaserPublisher(object):
         # Create a point cloud from the combined points wrt the front
         # laser frame
         point_cloud = create_cloud_xyz32(pc_front.header, translated_points)
-        self.pc_pub.publish(point_cloud)
+        # self.pc_pub.publish(point_cloud)
 
         # Convert combined point cloud into LaserScan
         all_laser_msg = front
