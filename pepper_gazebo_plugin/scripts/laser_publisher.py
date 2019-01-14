@@ -1,10 +1,9 @@
 #!/usr/bin/env python
-from math import atan2, cos, sin, sqrt
+from math import atan2, cos, radians, sin, sqrt
 
 import rospy
 
 from tf import TransformListener
-from sensor_msgs.msg import LaserScan
 from laser_geometry import LaserProjection
 from sensor_msgs.msg import LaserScan, PointCloud2
 from message_filters import TimeSynchronizer, Subscriber
@@ -15,13 +14,15 @@ class LaserPublisher(object):
     def __init__(self):
         if not rospy.core.is_initialized():
             rospy.init_node('laser_test', anonymous=True, disable_signals=True)
-            print("Initialised rospy node: laser_test")
+            rospy.loginfo("Initialised rospy node: laser_test")
 
         self.tl = TransformListener()
         self.lp = LaserProjection()
 
+        # Publishers
         self.all_laser_pub = rospy.Publisher(
             '/pepper/laser', LaserScan, queue_size=1)
+        self.pc_pub = rospy.Publisher('/cloud', PointCloud2, queue_size=1)
 
         # Subscribers
         left_sub = Subscriber('/pepper/scan_left', LaserScan)
@@ -32,7 +33,7 @@ class LaserPublisher(object):
                                    10)
         self.ts.registerCallback(self.scan_cb)
 
-        print("Finished intialising")
+        rospy.loginfo("Finished intialising")
 
     def scan_cb(self, left, front, right):
         translated_points = []
@@ -41,73 +42,71 @@ class LaserPublisher(object):
             pc_front = self.lp.projectLaser(front)
             pc_right = self.lp.projectLaser(right)
         except Exception as e:
-            print("Failed to transform laser scan because: " + str(e))
+            rospy.logerr("Failed to transform laser scan because: " + str(e))
 
         # right point cloud translation
-        for p in read_points(pc_right, field_names=('x', 'y', 'z'), skip_nans=True):
+        for p in read_points(pc_right,
+                             field_names=('x', 'y', 'z'),
+                             skip_nans=True):
             x = p[0]
             y = p[1]
-            # converts the position wrt the right laser frame into the position wrt the front laser frame
+            # converts the position wrt the right laser frame into the
+            # position wrt the front laser frame
             newx = x * cos(-1.757) - y * sin(-1.757)
             newy = x * sin(-1.757) + y * cos(-1.757)
             point = (newx, newy, 0.0)
             translated_points.append(point)
 
         # front point cloud
-        for p in read_points(pc_front, field_names=('x', 'y', 'z'), skip_nans=True):
+        for p in read_points(pc_front,
+                             field_names=('x', 'y', 'z'),
+                             skip_nans=True):
             point = (p[0], p[1], p[2])
             translated_points.append(point)
 
         # left pc translation
-        for p in read_points(pc_left, field_names=('x', 'y', 'z'), skip_nans=True):
+        for p in read_points(pc_left,
+                             field_names=('x', 'y', 'z'),
+                             skip_nans=True):
             x = p[0]
             y = p[1]
-            # converts the position wrt the left laser frame into the position wrt the front laser frame
+            # converts the position wrt the left laser frame into the
+            # position wrt the front laser frame
             newx = x * cos(1.757) - y * sin(1.757)
             newy = x * sin(1.757) + y * cos(1.757)
             point = (newx, newy, 0.0)
             translated_points.append(point)
 
-        # Create a point cloud from the combined points wrt the front laser frame
+        # Create a point cloud from the combined points wrt the front
+        # laser frame
         point_cloud = create_cloud_xyz32(pc_front.header, translated_points)
+        # self.pc_pub.publish(point_cloud)
 
         # Convert combined point cloud into LaserScan
         all_laser_msg = front
-        laser_ranges, angle_min, angle_max = self.pc_to_laser(point_cloud)
+        laser_ranges, angle_min, angle_max, angle_increment = self.pc_to_laser(
+            point_cloud)
         all_laser_msg.ranges = laser_ranges
         all_laser_msg.angle_min = angle_min
         all_laser_msg.angle_max = angle_max
+        all_laser_msg.angle_increment = angle_increment
         self.all_laser_pub.publish(all_laser_msg)
 
     def pc_to_laser(self, cloud):
-        laser_points = []
-        min_angle = None
-        previous_angle = None
-        angle_increment = None
-        points = read_points(cloud, skip_nans=True)
-        
-        # Convert each point cloud point into a LaserScan
-        for idx, p in enumerate(points):
+        laser_points = [-1] * 61
+        min_angle = -2.28059911728
+        max_angle = 2.28059896867
+        angle_increment = 0.07479
+        for p in read_points(cloud, skip_nans=True):
             current_angle = atan2(p[1], p[0])
-            if idx == 0:
-                # Get the smallest angle
-                min_angle = current_angle
-            if previous_angle and not angle_increment:
-                angle_increment = abs(current_angle - previous_angle)
-            if angle_increment:
-                angle = current_angle - previous_angle
-                # Adds -1 where there are holes in the laser scans
-                # Since pepper has 3 x 60 degree lasers with 2 x 20
-                # degree gaps between front and side lasers
-                if angle > angle_increment:
-                    if int(angle / angle_increment) > 1:
-                        for i in range(int(angle / angle_increment)):
-                            laser_points.append(-1)
-            laser_points.append(self.get_dist(p[0], p[1]))
-            previous_angle = current_angle
-        # Get the max angle
-        max_angle = previous_angle
-        return laser_points, min_angle, max_angle
+            index = int(round(((current_angle - min_angle) /
+                               (max_angle - min_angle)) * (len(laser_points) - 1)))
+            if index > (len(laser_points) - 1):
+                laser_points.append(self.get_dist(p[0], p[1]))
+            else:
+                laser_points[index] = self.get_dist(p[0], p[1])
+        # max_angle = current_angle
+        return laser_points, min_angle, max_angle, angle_increment
 
     def get_dist(self, x0, y0, x1=0, y1=0):
         return sqrt((x1 - x0)**2 + (y1 - y0)**2)
