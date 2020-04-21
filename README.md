@@ -68,5 +68,4 @@ rqt_joint_trajectory_controller rqt_joint_trajectory_controller`.
 If you want to simulate the RGB cameras with different resolutions you must go to `pepper_robot/pepper_description/urdf/pepper1.0_generated_urdf/pepperGazebo.xacro` (and/or `pepperGazeboCPU.xacro`) and change the `CameraTop_frame` `<width>640</width>` `<height>480</height>` tags. 
 
 # Video showing the simulation working
-
-![http://img.youtube.com/vi/W_Ag_C8Dvm0/0.jpg](https://youtu.be/W_Ag_C8Dvm0)
+[![Video of the simulation working](http://img.youtube.com/vi/W_Ag_C8Dvm0/0.jpg)](http://youtu.be/W_Ag_C8Dvm0)
