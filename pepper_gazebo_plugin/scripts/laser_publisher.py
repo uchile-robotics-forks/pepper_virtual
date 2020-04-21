@@ -13,11 +13,13 @@ from geometry_msgs.msg import TransformStamped
 from geometry_msgs.msg import Vector3, Quaternion
 from ddynamic_reconfigure_python.ddynamic_reconfigure import DDynamicReconfigure as DDR
 
-
-from sensor_msgs.msg import PointCloud2
 import sensor_msgs.point_cloud2 as pc2
 
 import numpy as np
+"""
+Author: Sammy Pfeiffer <Sammy.Pfeiffer at student.uts.edu.au>
+With LaserProject implementation borrowed from the laser_geometry package.
+"""
 
 
 class LaserProjection:
@@ -364,7 +366,8 @@ class LaserPublisher(object):
         pc_front.header.frame_id = 'base_footprint'
         point_cloud = create_cloud_xyz32(pc_front.header, translated_points)
         self.pc_pub.publish(point_cloud)
-        rospy.logdebug("pointcloud all together len: " + str(point_cloud.width))
+        rospy.logdebug("pointcloud all together len: " +
+                       str(point_cloud.width))
 
         # # double check we have the same thing
         # compare_str = "\n"
@@ -398,7 +401,8 @@ class LaserPublisher(object):
 
         # compare what came in and what came out
         rospy.logdebug("point_cloud frame_id, pc_redone frame_id:")
-        rospy.logdebug((point_cloud.header.frame_id, pc_redone.header.frame_id))
+        rospy.logdebug((point_cloud.header.frame_id,
+                        pc_redone.header.frame_id))
         rospy.logdebug("point_cloud is correct, pc_redone is incorrect")
         compare_str = "\n"
         for idx, (point_in, point_out) in enumerate(zip(read_points(point_cloud), read_points(pc_redone))):
@@ -426,7 +430,8 @@ class LaserPublisher(object):
         min_angle = -radians(self.half_max_angle)
         max_angle = radians(self.half_max_angle)
         # angle_increment = self.angle_increment
-        angle_increment = (radians(self.half_max_angle) * 2.0) / float(num_rays)
+        angle_increment = (radians(self.half_max_angle)
+                           * 2.0) / float(num_rays)
         big_str = "\n"
         for idx, p in enumerate(read_points(cloud, skip_nans=False)):
             #dist = self.get_dist(p[0], p[1])
@@ -471,7 +476,6 @@ class LaserPublisher(object):
             else:
                 print("nan, not adding anything to scan")
 
-
             # laser_points[]
             print("Angle from p : " + str(round(degrees(angle), 2)))
             # print("Angle from xy: " + str(round(degrees(angle2), 2)))
@@ -486,7 +490,8 @@ class LaserPublisher(object):
         rereprojected_pc = PointCloud2()
         rereprojected_pc.header.frame_id = 'base_footprint'
         rereprojected_pc.header.stamp = rospy.Time.now()
-        point_cloud_rere = create_cloud_xyz32(rereprojected_pc.header, points_rereprojected)
+        point_cloud_rere = create_cloud_xyz32(
+            rereprojected_pc.header, points_rereprojected)
         self.pc_rereprojected_pub.publish(point_cloud_rere)
 
         return laser_points, min_angle, max_angle, angle_increment
