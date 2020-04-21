@@ -305,8 +305,8 @@ class LaserPublisher(object):
 
         transform_right_to_front = self.tl.lookupTransform(
             'base_footprint', 'SurroundingRightLaser_frame', rospy.Time.now())
-        rospy.logwarn("Transform Right to Front:")
-        rospy.logwarn(transform_right_to_front)
+        rospy.logdebug("Transform Right to Front:")
+        rospy.logdebug(transform_right_to_front)
         ts = TransformStamped()
         ts.transform.translation = Vector3(*transform_right_to_front[0])
         ts.transform.rotation = Quaternion(*transform_right_to_front[1])
@@ -324,8 +324,8 @@ class LaserPublisher(object):
 
         transform_front_to_front = self.tl.lookupTransform(
             'base_footprint', 'SurroundingFrontLaser_frame', rospy.Time.now())
-        rospy.logwarn("Transform Front to Front:")
-        rospy.logwarn(transform_front_to_front)
+        rospy.logdebug("Transform Front to Front:")
+        rospy.logdebug(transform_front_to_front)
         ts = TransformStamped()
         ts.transform.translation = Vector3(*transform_front_to_front[0])
         ts.transform.rotation = Quaternion(*transform_front_to_front[1])
@@ -340,8 +340,8 @@ class LaserPublisher(object):
 
         transform_left_to_front = self.tl.lookupTransform(
             'base_footprint', 'SurroundingLeftLaser_frame', rospy.Time.now())
-        rospy.logwarn("Transform Left to Front:")
-        rospy.logwarn(transform_left_to_front)
+        rospy.logdebug("Transform Left to Front:")
+        rospy.logdebug(transform_left_to_front)
         ts = TransformStamped()
         ts.transform.translation = Vector3(*transform_left_to_front[0])
         ts.transform.rotation = Quaternion(*transform_left_to_front[1])
@@ -364,7 +364,7 @@ class LaserPublisher(object):
         pc_front.header.frame_id = 'base_footprint'
         point_cloud = create_cloud_xyz32(pc_front.header, translated_points)
         self.pc_pub.publish(point_cloud)
-        rospy.loginfo("pointcloud all together len: " + str(point_cloud.width))
+        rospy.logdebug("pointcloud all together len: " + str(point_cloud.width))
 
         # # double check we have the same thing
         # compare_str = "\n"
@@ -391,15 +391,15 @@ class LaserPublisher(object):
         all_laser_msg.intensities = []
         self.all_laser_pub.publish(all_laser_msg)
 
-        rospy.loginfo("all_laser_msg len: " + str(len(all_laser_msg.ranges)))
+        rospy.logdebug("all_laser_msg len: " + str(len(all_laser_msg.ranges)))
         pc_redone = self.lp.projectLaser(all_laser_msg, channel_options=0x00)
-        rospy.loginfo("all_laser pc_redone len: " + str(pc_redone.width))
+        rospy.logdebug("all_laser pc_redone len: " + str(pc_redone.width))
         self.pc_redone_pub.publish(pc_redone)
 
         # compare what came in and what came out
-        rospy.loginfo("point_cloud frame_id, pc_redone frame_id:")
-        rospy.loginfo((point_cloud.header.frame_id, pc_redone.header.frame_id))
-        rospy.loginfo("point_cloud is correct, pc_redone is incorrect")
+        rospy.logdebug("point_cloud frame_id, pc_redone frame_id:")
+        rospy.logdebug((point_cloud.header.frame_id, pc_redone.header.frame_id))
+        rospy.logdebug("point_cloud is correct, pc_redone is incorrect")
         compare_str = "\n"
         for idx, (point_in, point_out) in enumerate(zip(read_points(point_cloud), read_points(pc_redone))):
             point_out = [point_out[0], point_out[1], 0.0]
@@ -415,7 +415,7 @@ class LaserPublisher(object):
             angle_dif = angle2 - angle1
             compare_str += " angle dif: " + str(angle_dif) + "\n"
 
-        rospy.loginfo(compare_str)
+        rospy.logdebug(compare_str)
 
     def pc_to_laser(self, cloud):
         laser_points = []
@@ -477,8 +477,8 @@ class LaserPublisher(object):
             # print("Angle from xy: " + str(round(degrees(angle2), 2)))
             print("Expected angle: " + str(round(degrees(expected_angle), 2)))
 
-        rospy.logerr("Lasered cloud")
-        rospy.logerr(big_str)
+        rospy.logdebug("Lasered cloud")
+        rospy.logdebug(big_str)
 
         laser_points = laser_points2
         print("Len of laser points after new technique: " + str(len(laser_points)))
