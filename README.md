@@ -20,6 +20,11 @@ Or their variants that don't need a GPU (for the laser plugin):
 - `roslaunch pepper_gazebo_plugin pepper_gazebo_plugin_Y20_CPU.launch`
 - `roslaunch pepper_gazebo_plugin pepper_gazebo_plugin_in_office_CPU.launch`
 
+And further variants that don't have the arms of the robot which reduce CPU load (useful for navigation tests, specially on underpowered computers). In my machine this used 30% less CPU on `gzserver`. Note that if you close/don't launch `gzclient` (the graphical interface of Gazebo) you'll save a lot of CPU too (more than 1 core or 110% CPU in `top -c` for me):
+- `roslaunch pepper_gazebo_plugin pepper_gazebo_plugin_Y20_CPU_no_arms.launch`
+- `roslaunch pepper_gazebo_plugin pepper_gazebo_plugin_in_office_CPU_no_arms.launch`
+
+
 This should get your workspace up and running:
 ```bash
 mkdir -p pepper_sim_ws/src
