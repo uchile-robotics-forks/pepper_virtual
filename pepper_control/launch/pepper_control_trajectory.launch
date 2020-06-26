@@ -5,7 +5,7 @@
   <rosparam file="$(find pepper_control)/config/pepper_trajectory_control.yaml" command="load"/>
 
   <!-- load the controllers -->
-  <node launch-prefix="xterm -T 'Gazebo controllers' -e" name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="false"
+  <node name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="true"
     output="screen" args="
       /pepper_dcm/RightArm_controller
       /pepper_dcm/LeftArm_controller

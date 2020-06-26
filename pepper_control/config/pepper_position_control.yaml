@@ -72,7 +72,7 @@ pepper_dcm:
   KneePitch_position_controller:
     type: position_controllers/JointPositionController
     joint: KneePitch
-
+    
   # Effort Controllers ---------------------------
   WheelFL_controller:
     type: effort_controllers/JointEffortController

@@ -30,28 +30,22 @@ Please also make sure that the package and all the dependencies are up to date
     sudo apt-get update
     sudo apt-get install ros-indigo-pepper-gazebo-plugin
 
-Update Gazebo 2 (Ubuntu 14.04 Trusty, ROS Indigo)
+If you prefer to install from source, then
 
-To use `apt-get` you need to install OSRF PPA.
-
-.. code-block:: bash
-
-    sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu trusty main" > /etc/apt/sources.list.d/gazebo-latest.list'
-    wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-    sudo apt-get update
-
-
-Install Gazebo 2 using:
+* install additional dependencies:
 
 .. code-block:: bash
 
-    sudo apt-get install gazebo2 libsdformat-dev libsdformat1 ros-indigo-gazebo-msgs ros-indigo-gazebo-plugins ros-indigo-gazebo-ros ros-indigo-gazebo-ros-control ros-indigo-gazebo-ros-pkgs
+    sudo apt-get install ros-indigo-gazebo-ros ros-indigo-gazebo-ros-pkgs ros-indigo-gazebo-ros-control ros-indigo-effort-controllers ros-indigo-joint-trajectory-controller
 
-Uninstall Gazebo 7
+* clone the code and compile
 
 .. code-block:: bash
 
-    sudo apt-get purge gazebo7 gazebo7-common gazebo7-plugin-base libgazebo7 libgazebo7-dev libsdformat4 libsdformat4-dev ros-indigo-gazebo7-msgs ros-indigo-gazebo7-plugins ros-indigo-gazebo7-ros ros-indigo-gazebo7-ros-control ros-indigo-gazebo7-ros-pkgs sdformat-sdf
+    cd src
+    git clone https://github.com/ros-naoqi/pepper_virtual.git
+    cd ..
+    catkin_make
 
 
 How to run it
