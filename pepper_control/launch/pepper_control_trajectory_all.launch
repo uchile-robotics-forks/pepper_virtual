@@ -4,16 +4,11 @@
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find pepper_control)/config/pepper_trajectory_control.yaml" command="load"/>
 
-  <!-- load the controllers -->
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-  <node launch-prefix="xterm -T 'Gazebo controllers' -e" name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="true"
-=======
+  <!-- load the controllers 
+  <node launch-prefix="xterm -T 'Gazebo controllers' -e" name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="true"/>
+-->
+
   <node name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="true"
->>>>>>> Stashed changes
-=======
-  <node name="pepper_trajectory_controller" pkg="controller_manager" type="spawner" respawn="true"
->>>>>>> Stashed changes
     output="screen" args="
       /pepper/RightArm_controller
       /pepper/LeftArm_controller
